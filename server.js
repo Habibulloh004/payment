@@ -11,12 +11,6 @@ const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
 const handle = app.getRequestHandler();
 
-// Replace these with your app's details
-const APPLICATION_ID = process.env.APPLICATION_ID || "3771";
-const APPLICATION_SECRET =
-  process.env.APPLICATION_SECRET || "9c5d4630518324c78ef4468c28d8effd";
-const REDIRECT_URI = `http://localhost:3000/auth`;
-
 app.prepare().then(() => {
   const server = express();
   // Middleware to parse JSON and URL-encoded bodies
@@ -36,7 +30,7 @@ app.prepare().then(() => {
       formData.append("application_id", auth.application_id);
       formData.append("application_secret", auth.application_secret);
       formData.append("grant_type", "authorization_code");
-      formData.append("redirect_uri", `http://localhost:3000/auth`); // Correct redirect URI
+      formData.append("redirect_uri", `${process.env.NEXT_PUBLIC_URL}/auth`); // Correct redirect URI
       formData.append("code", auth.code);
 
       console.log("head", formData.getHeaders());
@@ -60,7 +54,7 @@ app.prepare().then(() => {
         });
 
         res.redirect(
-          `http://localhost:3000?token=${response.data.access_token}`
+          `${process.env.NEXT_PUBLIC_URL}?token=${response.data.access_token}`
         );
       } catch (error) {
         console.error("Error exchanging code for access token:", error);
