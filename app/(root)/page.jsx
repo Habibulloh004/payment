@@ -1,13 +1,19 @@
 "use client";
-import Loader from "@/components/shared/Loader/Loader";
 import Header from "@/components/shared/header";
 import Table from "@/components/shared/table";
+
 import { subMonths } from "date-fns";
 import { useState, useEffect } from "react";
+import { getCookies, getCookie } from "cookies-next/client";
+import Pagination from "@/components/shared/pagination";
 
 export default function Home() {
-  const [transaction, setTransaction] = useState({});
   const [token, setToken] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState([10, 20, 30, 40, 50]);
+  const [currentLimit, setCurrentLimit] = useState(limit[0]);
+  const [totalPage, setTotalPage] = useState(1);
+  const [transaction, setTransaction] = useState({});
   const [range, setRange] = useState([
     {
       startDate: subMonths(new Date(), 1), // Today's date as the default start date
@@ -15,14 +21,6 @@ export default function Home() {
       key: "selection",
     },
   ]);
-
-  // Use useEffect to handle localStorage on the client side only
-  useEffect(() => {
-    const storedToken = localStorage.getItem("paymentToken");
-    if (storedToken) {
-      setToken(storedToken);
-    }
-  }, []); // Empty dependency array ensures this runs only once after component mounts
 
   function fetchTransaction() {
     fetch(
@@ -37,22 +35,24 @@ export default function Home() {
         return response.json();
       })
       .then((data) => {
-        setTransaction(data); // Store the data in state
-        console.log("Fetched Data:", data);
+        setTransaction(data);
+        setTotalPage(Math.ceil(data.count / currentLimit));
+        console.log(Math.ceil(data.count / currentLimit));
+        console.log(data)
       })
       .catch((error) => console.error("Error fetching transaction:", error));
   }
+
+  useEffect(() => {
+    const cook = getCookie("authToken");
+    setToken(cook);
+  }, []);
 
   useEffect(() => {
     if (token && token.length) {
       fetchTransaction();
     }
   }, [token]); // Fetch transactions when token changes
-
-  // Optionally handle the case when data is loading
-  // if (!transaction || !transaction.count) {
-  //   return <Loader />;
-  // }
 
   return (
     <>
@@ -61,10 +61,14 @@ export default function Home() {
         setRange={setRange}
         transaction={transaction}
         fetchTransaction={fetchTransaction}
-        token={token}
-        setToken={setToken}
       />
-      <Table />
+      <Table transaction={transaction} />
+      <Pagination
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        limit={limit}
+        setLimit={setLimit}
+      />
     </>
   );
 }

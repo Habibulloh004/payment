@@ -2,16 +2,9 @@
 import React, { useRef, useState } from "react";
 import DatePicker from "@/components/shared/date-picker";
 
-const Header = ({
-  range,
-  setRange,
-  transaction,
-  fetchTransaction,
-  token,
-  setToken,
-}) => {
+const Header = ({ range, setRange, transaction, fetchTransaction }) => {
   const [showDate, setShowDate] = useState(false);
-  const inputRef = useRef()
+  const inputRef = useRef();
 
   // Function to format the month and day in Russian
   const formatDate = (date) => {
@@ -26,26 +19,10 @@ const Header = ({
         <span className="flex items-end gap-3">
           <h1 className="text-xl">Оплаты</h1>
           {/* <span>{transaction.count}</span> */}
-          <span>1</span>
+          <span>{transaction.count}</span>
         </span>
 
         <div className="flex gap-3">
-          <input
-            type="text"
-            className="border border-gray-500 rounded-md pl-2"
-            placeholder="Токен"
-            ref={inputRef}
-            // onChange={(e) => setToken(e.target.value)}
-          />
-          <button
-            className="border py-1 px-3 rounded-md border-gray-500"
-            onClick={() => {
-              localStorage.setItem("paymentToken", inputRef?.current.value);
-              fetchTransaction();
-            }}
-          >
-            Проверять
-          </button>
           <span className="relative">
             <button
               className="bg-gray-200 rounded-md py-2 px-3"
