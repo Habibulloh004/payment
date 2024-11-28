@@ -1,3 +1,4 @@
+"use client"
 import { formatCurrency } from "@/utils";
 
 function Table({ transaction }) {
