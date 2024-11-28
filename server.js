@@ -49,7 +49,7 @@ app.prepare().then(() => {
         res.cookie("authToken", response.data.access_token, {
           expires: expiresIn,
           // httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
+          // secure: process.env.NODE_ENV === "production",
           path: "/", // Ensure path is correct
         });
 
