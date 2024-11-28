@@ -6,6 +6,7 @@ import { subMonths } from "date-fns";
 import { useState, useEffect } from "react";
 import { getCookies, getCookie } from "cookies-next/client";
 import Pagination from "@/components/shared/pagination";
+import Script from "next/script";
 
 export default function Home() {
   const [token, setToken] = useState("");
@@ -38,12 +39,29 @@ export default function Home() {
         setTransaction(data);
         setTotalPage(Math.ceil(data.count / currentLimit));
         console.log(Math.ceil(data.count / currentLimit));
-        console.log(data)
+        console.log(data);
       })
       .catch((error) => console.error("Error fetching transaction:", error));
   }
 
+  // useEffect(() => {
+  //   window.addEventListener(
+  //     "load",
+  //     function () {
+  //       top.postMessage({ hideSpinner: true }, "*");
+  //     },
+  //     false
+  //   );
+  // }, []);
+
   useEffect(() => {
+    // window.addEventListener(
+    //   "load",
+    //   function () {
+    //     top.postMessage({ hideSpinner: true }, "*");
+    //   },
+    //   false
+    // );
     const cook = getCookie("authToken");
     setToken(cook);
   }, []);
@@ -56,6 +74,13 @@ export default function Home() {
 
   return (
     <>
+      {/* <Script id="hide-spinner-script">
+        {`
+        window.addEventListener('load', function () {
+          top.postMessage({ hideSpinner: true }, '*');
+        }, false);
+      `}
+      </Script> */}
       <Header
         range={range}
         setRange={setRange}

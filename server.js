@@ -65,6 +65,24 @@ app.prepare().then(() => {
     }
   });
 
+  server.use((req, res, next) => {
+    const originalSend = res.send;
+    res.send = function (body) {
+      if (typeof body === "string" && body.includes("</body>")) {
+        const script = `
+          <script>
+            window.addEventListener('load', function () {
+              top.postMessage({ hideSpinner: true }, '*');
+            }, false);
+          </script>
+        `;
+        body = body.replace("</body>", `${script}</body>`);
+      }
+      originalSend.call(this, body);
+    };
+    next();
+  });
+  
   // Fallback to Next.js request handler
   server.all("*", (req, res) => {
     const parsedUrl = parse(req.url, true);
