@@ -30,7 +30,7 @@ app.prepare().then(() => {
       formData.append("application_id", auth.application_id);
       formData.append("application_secret", auth.application_secret);
       formData.append("grant_type", "authorization_code");
-      formData.append("redirect_uri", `${process.env.NEXT_PUBLIC_URL}/auth`); // Correct redirect URI
+      formData.append("redirect_uri", `https://payment-one-green.vercel.app/auth`); // Correct redirect URI
       formData.append("code", auth.code);
 
       console.log("head", formData.getHeaders());
@@ -54,7 +54,7 @@ app.prepare().then(() => {
         });
 
         res.redirect(
-          `${process.env.NEXT_PUBLIC_URL}?token=${response.data.access_token}`
+          `https://payment-one-green.vercel.app?token=${response.data.access_token}`
         );
       } catch (error) {
         console.error("Error exchanging code for access token:", error);

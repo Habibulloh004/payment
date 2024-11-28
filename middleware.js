@@ -6,7 +6,7 @@ export function middleware(req) {
 
   // Define the URL to redirect to if the token is missing
   const redirectUrl = new URL(
-    `https://joinposter.com/api/auth?application_id=3771&redirect_uri=${process.env.NEXT_PUBLIC_URL}/auth&response_type=code`,
+    `https://joinposter.com/api/auth?application_id=3771&redirect_uri=https://payment-one-green.vercel.app/auth&response_type=code`,
     req.url
   ); // Replace with your desired URL
 
