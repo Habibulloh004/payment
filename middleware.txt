@@ -1,0 +1,30 @@
+import { NextResponse } from "next/server";
+
+export function middleware(req) {
+  // Get the cookies from the request
+  // const authToken = req.cookies.get("authToken");
+  // const { pathname } = req.nextUrl; // Get the pathname of the current request
+
+  // // Define the URL to redirect to if the token is missing
+  // const redirectUrl = new URL(
+  //   `https://joinposter.com/api/auth?application_id=3771&redirect_uri=${process.env.NEXT_PUBLIC_URL}/auth&response_type=code`,
+  //   req.url
+  // ); // Replace with your desired URL
+
+  // if (!authToken) {
+  //   return NextResponse.redirect(redirectUrl);
+  // }
+
+  // if (pathname !== "/") {
+  //   const redirectUrl = new URL("/", req.url);
+  //   return NextResponse.redirect(redirectUrl);
+  // }
+
+  // If the authToken exists, continue with the request
+  return NextResponse.next();
+}
+
+// Configure the paths where the middleware should run
+export const config = {
+  matcher: ["/"], // Add paths to protect
+};

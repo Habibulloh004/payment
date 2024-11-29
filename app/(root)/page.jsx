@@ -44,15 +44,15 @@ export default function Home() {
       .catch((error) => console.error("Error fetching transaction:", error));
   }
 
-  // useEffect(() => {
-  //   window.addEventListener(
-  //     "load",
-  //     function () {
-  //       top.postMessage({ hideSpinner: true }, "*");
-  //     },
-  //     false
-  //   );
-  // }, []);
+  useEffect(() => {
+    window.addEventListener(
+      "load",
+      function () {
+        top.postMessage({ hideSpinner: true }, "*");
+      },
+      false
+    );
+  }, []);
 
   useEffect(() => {
     // window.addEventListener(
@@ -74,26 +74,33 @@ export default function Home() {
 
   return (
     <>
-      {/* <Script id="hide-spinner-script">
-        {`
-        window.addEventListener('load', function () {
-          top.postMessage({ hideSpinner: true }, '*');
-        }, false);
-      `}
-      </Script> */}
-      <Header
-        range={range}
-        setRange={setRange}
-        transaction={transaction}
-        fetchTransaction={fetchTransaction}
-      />
-      <Table transaction={transaction} />
-      <Pagination
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        limit={limit}
-        setLimit={setLimit}
-      />
+      {token && token.length ? (
+        <>
+          <Header
+            range={range}
+            setRange={setRange}
+            transaction={transaction}
+            fetchTransaction={fetchTransaction}
+          />
+          <Table transaction={transaction} />
+          <Pagination
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            limit={limit}
+            setLimit={setLimit}
+          />
+        </>
+      ) : (
+        <div className="h-screen w-screen flex justify-center items-center">
+          <button
+            onClick={() => {
+              window.location.href = `https://joinposter.com/api/auth?application_id=3771&redirect_uri=${process.env.NEXT_PUBLIC_URL}/auth&response_type=code`;
+            }}
+          >
+            Авторизация
+          </button>
+        </div>
+      )}
     </>
   );
 }

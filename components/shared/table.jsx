@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { formatCurrency } from "@/utils";
 
 function Table({ transaction }) {
@@ -36,8 +36,8 @@ function Table({ transaction }) {
             <th className="border border-gray-300 p-2">Карточка</th>
             <th className="border border-gray-300 p-2">Click</th>
             <th className="border border-gray-300 p-2">Pay me</th>
-            <th className="border border-gray-300 p-2">Uzum</th>
             <th className="border border-gray-300 p-2">Заем</th>
+            <th className="border border-gray-300 p-2">Uzum</th>
           </tr>
         </thead>
         <tbody>
@@ -56,10 +56,10 @@ function Table({ transaction }) {
                 {formatCurrency(item.click) || "0"} СУМ
               </td>
               <td className="border border-gray-300 p-2 text-center lowercase">
-                {formatCurrency(item.payme) || "0"} СУМ
+                {formatCurrency(item.uzum) || "0"} СУМ
               </td>
               <td className="border border-gray-300 p-2 text-center lowercase">
-                {formatCurrency(item.uzum) || "0"} СУМ
+                {formatCurrency(item.payme) || "0"} СУМ
               </td>
               <td className="border border-gray-300 p-2 text-center lowercase">
                 {formatCurrency(item.loan) || "0"} СУМ
@@ -68,7 +68,9 @@ function Table({ transaction }) {
           ))}
 
           <tr>
-            <td className="border border-gray-300 p-2 text-center font-semibold">Итого</td>
+            <td className="border border-gray-300 p-2 text-center font-semibold">
+              Итого
+            </td>
 
             {total &&
               Object.entries(total).map(([key, value], idx) => (
