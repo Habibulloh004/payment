@@ -10,7 +10,7 @@ const Page = () => {
       },
       false
     );
-    window.location.href = `${process.env.NEXT_PUBLIC_URL}`;
+    // window.location.href = `${process.env.NEXT_PUBLIC_URL}`;
   }, []);
   return <div>Extra</div>;
 };

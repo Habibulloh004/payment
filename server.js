@@ -82,7 +82,11 @@ app.prepare().then(() => {
     };
     next();
   });
-  
+
+  server.get("/:id", (req, res) => {
+    // app.render(req, res, "/"); // Render the Next.js page for "/"
+    res.redirect("/");
+  });
   // Fallback to Next.js request handler
   server.all("*", (req, res) => {
     const parsedUrl = parse(req.url, true);
