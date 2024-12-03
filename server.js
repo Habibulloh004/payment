@@ -52,6 +52,56 @@ app.get("/token", (req, res) => {
   }
 });
 
+app.get("/auth", async (req, res) => {
+
+  if (req.query.code) {
+    const auth = {
+      application_id: 3771,
+      application_secret: "9c5d4630518324c78ef4468c28d8effd",
+      code: req.query.code,
+      account: req.query.account,
+    };
+    console.log(req.query);
+
+    const formData = new FormData();
+    formData.append("application_id", auth.application_id);
+    formData.append("application_secret", auth.application_secret);
+    formData.append("grant_type", "authorization_code");
+    formData.append("redirect_uri", `https://payment-wek9.onrender.com/auth`);
+    formData.append("code", auth.code);
+
+    try {
+      const response = await fetch(
+        `https://${auth.account}.joinposter.com/api/v2/auth/access_token`,
+        {
+          method: "POST",
+          headers: formData.getHeaders(),
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      console.log("Access token response data:", data);
+
+      const expiresIn = new Date();
+      expiresIn.setDate(expiresIn.getDate() + 10); // Expire in 10 days
+      res.cookie("authToken", data.access_token, {
+        expires: expiresIn,
+        path: "/",
+        httpOnly: true, // Secure the cookie
+        secure: process.env.NODE_ENV === "production", // Enable secure only in production
+      });
+
+      res.redirect(`https://payment-wek9.onrender.com?token=${data.access_token}`);
+    } catch (error) {
+      console.error("Error exchanging code for access token:", error.message);
+      res.status(500).send("Error exchanging code for access token");
+    }
+  } else {
+    res.status(400).send("No code provided");
+  }
+});
+
 // Get transactions
 app.get("/api/getTransaction", async (req, res) => {
   console.log(req.query);
