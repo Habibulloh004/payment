@@ -124,7 +124,7 @@ app.get("/api/getTransaction", async (req, res) => {
 
     // Filter objects where `extras` is not empty
     const filteredData = data.response.data.filter(
-      (item) => item.extras && Object.keys(item.extras).length > 0
+      (item) => item.extras && item.extras.combo_box
     );
     res.status(200).json({
       count: filteredData.length,
