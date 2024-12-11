@@ -201,7 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Date picker setup
   flatpickr("#dateRangePicker", {
     mode: "range",
-    maxDate: "today",
+    // maxDate: "tomorrow",
     defaultDate: dateRange,
     dateFormat: "Y-m-d",
     onClose: (selectedDates) => {

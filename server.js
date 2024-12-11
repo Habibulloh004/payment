@@ -53,7 +53,6 @@ app.get("/token", (req, res) => {
 });
 
 app.get("/auth", async (req, res) => {
-
   if (req.query.code) {
     const auth = {
       application_id: 3771,
@@ -92,7 +91,9 @@ app.get("/auth", async (req, res) => {
         secure: process.env.NODE_ENV === "production", // Enable secure only in production
       });
 
-      res.redirect(`https://payment-wek9.onrender.com?token=${data.access_token}`);
+      res.redirect(
+        `https://payment-wek9.onrender.com?token=${data.access_token}`
+      );
     } catch (error) {
       console.error("Error exchanging code for access token:", error.message);
       res.status(500).send("Error exchanging code for access token");
@@ -118,14 +119,14 @@ app.get("/api/getTransaction", async (req, res) => {
     const response = await fetch(
       `https://joinposter.com/api/transactions.getTransactions?token=${
         token ? token : req.query.access_token
-      }&date_from=${dateFrom}&date_to=${dateTo}&per_page=${perPage}&page=${page}`
+      }&date_from=${dateFrom}&date_to=${dateTo}`
     );
     const data = await response.json();
 
-    // Filter objects where `extras` is not empty
     const filteredData = data.response.data.filter(
       (item) => item.extras && item.extras.combo_box
     );
+
     res.status(200).json({
       count: filteredData.length,
       data: filteredData,
