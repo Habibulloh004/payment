@@ -57,34 +57,33 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getDynamicRanges() {
-    const today = new Date();
-    const formatDate = (date) => date.toISOString().slice(0, 10);
+  const today = new Date();
 
-    return [
-      { label: "Сегодня", range: [formatDate(today), formatDate(today)] },
-      {
-        label: "Вчера",
-        range: [
-          formatDate(new Date(today.setDate(today.getDate() - 1))),
-          formatDate(today),
-        ],
-      },
-      {
-        label: "Последние 7 дней",
-        range: [
-          formatDate(new Date(today.setDate(today.getDate() - 7))),
-          formatDate(new Date()),
-        ],
-      },
-      {
-        label: "Последние 30 дней",
-        range: [
-          formatDate(new Date(today.setDate(today.getDate() - 30))),
-          formatDate(new Date()),
-        ],
-      },
-    ];
-  }
+  return [
+    { label: "Сегодня", range: [formatDateLocal(today), formatDateLocal(today)] },
+    {
+      label: "Вчера",
+      range: [
+        formatDateLocal(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1)),
+        formatDateLocal(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1)),
+      ],
+    },
+    {
+      label: "Последние 7 дней",
+      range: [
+        formatDateLocal(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7)),
+        formatDateLocal(today),
+      ],
+    },
+    {
+      label: "Последние 30 дней",
+      range: [
+        formatDateLocal(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30)),
+        formatDateLocal(today),
+      ],
+    },
+  ];
+}
 
   // Predefined range tugmalarini yaratish
   function renderPredefinedRanges() {
