@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const urlParams = new URLSearchParams(new URL(url).search);
 
     // Get the value of the 'access_token' query parameter
-    const token = urlParams.get("token");
+    const token = urlParams.get("access_token");
     fetch("/getSpots?access_token=" + token)
       .then((response) => {
         if (!response.ok) {
@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const urlParams = new URLSearchParams(new URL(url).search);
 
     // Get the value of the 'access_token' query parameter
-    const token = urlParams.get("token");
+    const token = urlParams.get("access_token");
     // Validate date range before making the API call
     if (!startDate || !endDate) {
       console.error("Invalid date range selected");
