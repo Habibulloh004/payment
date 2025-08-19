@@ -11,6 +11,13 @@ document.addEventListener("DOMContentLoaded", () => {
   //     }
   //   });
 
+  function formatDateLocal(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
   function getSpots() {
     const url = window.location.href;
 
@@ -30,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const spotSelect = document.getElementById("spotSelect");
         data.forEach((spot) => {
           const option = document.createElement("option");
-          option.value = spot.spot_id ;
+          option.value = spot.spot_id;
           option.textContent = spot.name;
           spotSelect.appendChild(option);
         });
@@ -38,13 +45,14 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch((error) => console.error("Error fetching spots:", error));
   }
   getSpots();
-  // Dinamik sanalar oralig'ini hisoblash
+  // Dinamik sanalar oralig'ini hisoblashformatDate
   function getLastMonthRange() {
     const today = new Date();
+    console.log(today);
     const lastMonthDate = new Date(today);
     lastMonthDate.setMonth(today.getMonth() - 1);
 
-    const formatDate = (date) => date.toISOString().slice(0, 10);
+    const formatDate = (date) => formatDateLocal(date);
     return [formatDate(lastMonthDate), formatDate(today)];
   }
 
@@ -99,6 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function fetchTransaction(spotId = "") {
     const [startDate, endDate] = dateRange;
     const url = window.location.href;
+    console.log(dateRange);
 
     // Parse the URL
     const urlParams = new URLSearchParams(new URL(url).search);
@@ -121,8 +130,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return response.json();
       })
       .then((res) => {
-        if(spotId != "") {
-          res.data = res.data.filter(item => item.spot_id == spotId);
+        if (spotId != "") {
+          res.data = res.data.filter((item) => item.spot_id == spotId);
         }
         console.log(res);
         updateTable(res.data);
@@ -154,10 +163,11 @@ document.addEventListener("DOMContentLoaded", () => {
         click: parseFloat(extras.click) || 0,
         uzum: parseFloat(extras.uzum) || 0,
         payme: parseFloat(extras.payme) || 0,
-        loan: parseFloat(extras.loan) || 0,
+        bonus: parseFloat(extras.bonus) || 0,
       };
     });
 
+    console.log(parsedData)
     const tbody = document.querySelector("#transactionTable tbody");
     tbody.innerHTML = "";
 
@@ -178,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
           item.payme
         )} СУМ</td>
         <td class="border border-gray-300 p-2 text-center">${formatCurrency(
-          item.loan
+          item.bonus
         )} СУМ</td>
         <td class="border border-gray-300 p-2 text-center">${formatCurrency(
           item.uzum
@@ -195,10 +205,10 @@ document.addEventListener("DOMContentLoaded", () => {
         acc.click += item.click;
         acc.uzum += item.uzum;
         acc.payme += item.payme;
-        acc.loan += item.loan;
+        acc.bonus += item.bonus;
         return acc;
       },
-      { cash: 0, card: 0, click: 0, uzum: 0, payme: 0, loan: 0 }
+      { cash: 0, card: 0, click: 0, uzum: 0, payme: 0, bonus: 0 }
     );
 
     // Append totals row
@@ -218,7 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
         totals.payme
       )} СУМ</td>
       <td class="border border-gray-300 p-2 text-center font-bold">${formatCurrency(
-        totals.loan
+        totals.bonus
       )} СУМ</td>
       <td class="border border-gray-300 p-2 text-center font-bold">${formatCurrency(
         totals.uzum
