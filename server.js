@@ -6,12 +6,16 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import crypto from "crypto";
 import fetch from "node-fetch"; // Importing fetch
+import dotenv from "dotenv";
+dotenv.config();
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const port = parseInt(process.env.PORT || "3000", 10);
 const app = express();
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -55,8 +59,8 @@ app.get("/token", (req, res) => {
 app.get("/auth", async (req, res) => {
   if (req.query.code) {
     const auth = {
-      application_id: 3771,
-      application_secret: "9c5d4630518324c78ef4468c28d8effd",
+      application_id: process.env.APPLICATION_ID || 3771,
+      application_secret: process.env.APPLICATION_SECRET || "9c5d4630518324c78ef4468c28d8effd",
       code: req.query.code,
       account: req.query.account,
     };
@@ -66,7 +70,7 @@ app.get("/auth", async (req, res) => {
     formData.append("application_id", auth.application_id);
     formData.append("application_secret", auth.application_secret);
     formData.append("grant_type", "authorization_code");
-    formData.append("redirect_uri", `https://payment-wek9.onrender.com/auth`);
+    formData.append("redirect_uri", `${process.env.BASE_URL}/auth`);
     formData.append("code", auth.code);
 
     try {
@@ -92,7 +96,7 @@ app.get("/auth", async (req, res) => {
       });
 
       res.redirect(
-        `https://payment-wek9.onrender.com?token=${data.access_token}`
+        `${process.env.BASE_URL}?token=${data.access_token}`
       );
     } catch (error) {
       console.error("Error exchanging code for access token:", error.message);
@@ -105,8 +109,6 @@ app.get("/auth", async (req, res) => {
 
 // Get transactions
 app.get("/api/getTransaction", async (req, res) => {
-  console.log(req.query);
-  console.log(req.cookies);
   const token = req.cookies.authToken;
   const {
     date_from: dateFrom,
@@ -126,6 +128,7 @@ app.get("/api/getTransaction", async (req, res) => {
     const filteredData = data.response.data.filter(
       (item) => item.extras && item.extras.combo_box
     );
+    // console.log(data.response.data)
 
     res.status(200).json({
       count: filteredData.length,
@@ -138,11 +141,27 @@ app.get("/api/getTransaction", async (req, res) => {
   }
 });
 
+app.get("/getSpots", async (req, res) => {
+  const token = req.cookies.authToken;
+
+  try {
+    const response = await fetch(
+      `https://joinposter.com/api/spots.getSpots?token=${token ? token : req.query.access_token}`
+    );
+    const data = await response.json();
+    console.log(data)
+    res.status(200).json(data.response);
+  } catch (error) {
+    console.error("Error fetching spots:", error.message);
+    res.status(500).json({ error: "Failed to fetch data" });
+  }
+});
+
 // Redirect all unknown routes to the root
 app.get("/:id", async (req, res) => {
   const auth = {
-    application_id: 3771,
-    application_secret: "9c5d4630518324c78ef4468c28d8effd",
+    application_id: process.env.APPLICATION_ID || 3771,
+    application_secret: process.env.APPLICATION_SECRET || "9c5d4630518324c78ef4468c28d8effd",
     code: `${req.params.id}`,
   };
 

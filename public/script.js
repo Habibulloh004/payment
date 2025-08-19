@@ -11,6 +11,33 @@ document.addEventListener("DOMContentLoaded", () => {
   //     }
   //   });
 
+  function getSpots() {
+    const url = window.location.href;
+
+    // Parse the URL
+    const urlParams = new URLSearchParams(new URL(url).search);
+
+    // Get the value of the 'access_token' query parameter
+    const token = urlParams.get("token");
+    fetch("/getSpots?access_token=" + token)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch spots");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const spotSelect = document.getElementById("spotSelect");
+        data.forEach((spot) => {
+          const option = document.createElement("option");
+          option.value = spot.spot_id ;
+          option.textContent = spot.name;
+          spotSelect.appendChild(option);
+        });
+      })
+      .catch((error) => console.error("Error fetching spots:", error));
+  }
+  getSpots();
   // Dinamik sanalar oralig'ini hisoblash
   function getLastMonthRange() {
     const today = new Date();
@@ -62,7 +89,6 @@ document.addEventListener("DOMContentLoaded", () => {
       button.className = "bg-gray-200 p-2 m-1 rounded border";
       button.addEventListener("click", () => {
         dateRange = range.range;
-        console.log("Selected Range:", dateRange);
         fetchTransaction();
       });
       container.appendChild(button);
@@ -70,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Fetch and display transactions
-  function fetchTransaction() {
+  function fetchTransaction(spotId = "") {
     const [startDate, endDate] = dateRange;
     const url = window.location.href;
 
@@ -78,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const urlParams = new URLSearchParams(new URL(url).search);
 
     // Get the value of the 'access_token' query parameter
-    const token = urlParams.get("access_token");
+    const token = urlParams.get("token");
     // Validate date range before making the API call
     if (!startDate || !endDate) {
       console.error("Invalid date range selected");
@@ -95,11 +121,14 @@ document.addEventListener("DOMContentLoaded", () => {
         return response.json();
       })
       .then((res) => {
-        updateTable(res.data);
+        if(spotId != "") {
+          res.data = res.data.filter(item => item.spot_id == spotId);
+        }
         console.log(res);
+        updateTable(res.data);
         document.getElementById(
           "transaction-count"
-        ).innerText = `(${res.count})`;
+        ).innerText = `(${res.data.length})`;
       })
       .catch((error) => console.error("Error fetching transaction:", error));
   }
@@ -233,6 +262,12 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
       datePicker.classList.add("hidden");
     }
+  });
+
+  document.getElementById("spotSelect").addEventListener("change", (event) => {
+    const selectedSpot = event.target.value;
+    fetchTransaction(selectedSpot);
+    console.log("Selected spot:", selectedSpot);
   });
 
   renderPredefinedRanges();
