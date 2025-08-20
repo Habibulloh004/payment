@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
   let currentPage = 1;
   let currentLimit = 10;
+  let selectedSpots = []; // ['1','2', ...]
+  let spotsCache = []; // API dan kelgan to‘liq spotlar
+
   let dateRange = getLastMonthRange(); // Default date range: o'tgan oyning shu kuni
 
   // fetch("/token")
@@ -20,30 +23,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getSpots() {
     const url = window.location.href;
-
-    // Parse the URL
     const urlParams = new URLSearchParams(new URL(url).search);
-
-    // Get the value of the 'access_token' query parameter
     const token = urlParams.get("access_token");
+
     fetch("/getSpots?access_token=" + token)
       .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch spots");
-        }
+        if (!response.ok) throw new Error("Failed to fetch spots");
         return response.json();
       })
       .then((data) => {
-        const spotSelect = document.getElementById("spotSelect");
-        data.forEach((spot) => {
-          const option = document.createElement("option");
-          option.value = spot.spot_id;
-          option.textContent = spot.name;
-          spotSelect.appendChild(option);
-        });
+        spotsCache = data || [];
+        renderSpotList();
+        updateSpotChips();
       })
       .catch((error) => console.error("Error fetching spots:", error));
   }
+
   getSpots();
   // Dinamik sanalar oralig'ini hisoblashformatDate
   function getLastMonthRange() {
@@ -56,33 +51,128 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getDynamicRanges() {
-  const today = new Date();
+    const today = new Date();
 
-  return [
-    { label: "Сегодня", range: [formatDateLocal(today), formatDateLocal(today)] },
-    {
-      label: "Вчера",
-      range: [
-        formatDateLocal(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1)),
-        formatDateLocal(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1)),
-      ],
-    },
-    {
-      label: "Последние 7 дней",
-      range: [
-        formatDateLocal(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7)),
-        formatDateLocal(today),
-      ],
-    },
-    {
-      label: "Последние 30 дней",
-      range: [
-        formatDateLocal(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30)),
-        formatDateLocal(today),
-      ],
-    },
-  ];
-}
+    return [
+      {
+        label: "Сегодня",
+        range: [formatDateLocal(today), formatDateLocal(today)],
+      },
+      {
+        label: "Вчера",
+        range: [
+          formatDateLocal(
+            new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1)
+          ),
+          formatDateLocal(
+            new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1)
+          ),
+        ],
+      },
+      {
+        label: "Последние 7 дней",
+        range: [
+          formatDateLocal(
+            new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7)
+          ),
+          formatDateLocal(today),
+        ],
+      },
+      {
+        label: "Последние 30 дней",
+        range: [
+          formatDateLocal(
+            new Date(
+              today.getFullYear(),
+              today.getMonth(),
+              today.getDate() - 30
+            )
+          ),
+          formatDateLocal(today),
+        ],
+      },
+    ];
+  }
+
+  function renderSpotList(filterText = "") {
+    const list = document.getElementById("spotList");
+    list.innerHTML = "";
+    const filtered = spotsCache.filter((s) =>
+      (s.name || "").toLowerCase().includes(filterText.toLowerCase())
+    );
+
+    filtered.forEach((spot) => {
+      const id = String(spot.spot_id);
+      const label = document.createElement("label");
+      label.className = "flex items-center gap-2 p-1 hover:bg-gray-50 rounded";
+
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.value = id;
+      input.checked = selectedSpots.includes(id);
+      input.addEventListener("change", (e) => {
+        if (e.target.checked) {
+          if (!selectedSpots.includes(id)) selectedSpots.push(id);
+        } else {
+          selectedSpots = selectedSpots.filter((x) => x !== id);
+        }
+        updateSpotChips(false);
+        // SelectAll holatini yangilaymiz
+        document.getElementById("spotSelectAll").checked =
+          selectedSpots.length === spotsCache.length && spotsCache.length > 0;
+      });
+
+      const span = document.createElement("span");
+      span.textContent = spot.name;
+
+      label.appendChild(input);
+      label.appendChild(span);
+      list.appendChild(label);
+    });
+
+    document.getElementById("spotSelectAll").checked =
+      selectedSpots.length === spotsCache.length && spotsCache.length > 0;
+
+    updateSpotCount();
+  }
+
+  function updateSpotCount() {
+    document.getElementById("spotCount").textContent = selectedSpots.length
+      ? selectedSpots.length
+      : "Все";
+  }
+
+  function updateSpotChips(reRenderList = true) {
+    const chips = document.getElementById("spotChips");
+    chips.innerHTML = "";
+
+    if (selectedSpots.length === 0) {
+      const span = document.createElement("span");
+      span.className = "text-gray-500 text-sm";
+      span.textContent = "Все точки";
+      chips.appendChild(span);
+    } else {
+      selectedSpots.forEach((id) => {
+        const s = spotsCache.find((x) => String(x.spot_id) === id);
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.innerHTML = `${
+          s ? s.name : id
+        } <button class="chip-remove" aria-label="remove">×</button>`;
+        chip.querySelector("button").addEventListener("click", () => {
+          selectedSpots = selectedSpots.filter((x) => x !== id);
+          if (reRenderList) {
+            const q = document.getElementById("spotSearch").value || "";
+            renderSpotList(q);
+          }
+          updateSpotChips();
+        });
+        chips.appendChild(chip);
+      });
+    }
+
+    updateSpotCount();
+  }
 
   // Predefined range tugmalarini yaratish
   function renderPredefinedRanges() {
@@ -95,23 +185,19 @@ document.addEventListener("DOMContentLoaded", () => {
       button.className = "bg-gray-200 p-2 m-1 rounded border";
       button.addEventListener("click", () => {
         dateRange = range.range;
-        fetchTransaction();
+        fetchTransaction(selectedSpots); // <— tanlangan spotlar bilan
       });
       container.appendChild(button);
     });
   }
 
   // Fetch and display transactions
-  function fetchTransaction(spotId = "") {
+  function fetchTransaction(spotIds = []) {
     const [startDate, endDate] = dateRange;
     const url = window.location.href;
-
-    // Parse the URL
     const urlParams = new URLSearchParams(new URL(url).search);
-
-    // Get the value of the 'access_token' query parameter
     const token = urlParams.get("access_token");
-    // Validate date range before making the API call
+
     if (!startDate || !endDate) {
       console.error("Invalid date range selected");
       return;
@@ -121,14 +207,15 @@ document.addEventListener("DOMContentLoaded", () => {
       `/api/getTransaction?access_token=${token}&date_from=${startDate}&date_to=${endDate}&page=${currentPage}&limit=${currentLimit}`
     )
       .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch transactions");
-        }
+        if (!response.ok) throw new Error("Failed to fetch transactions");
         return response.json();
       })
       .then((res) => {
-        if (spotId != "") {
-          res.data = res.data.filter((item) => item.spot_id == spotId);
+        if (Array.isArray(spotIds) && spotIds.length > 0) {
+          const ids = spotIds.map(String);
+          res.data = res.data.filter((item) =>
+            ids.includes(String(item.spot_id))
+          );
         }
         updateTable(res.data);
         document.getElementById(
@@ -169,7 +256,9 @@ document.addEventListener("DOMContentLoaded", () => {
     parsedData.forEach((item, idx) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td class="border border-gray-300 p-2 text-center">${transactions[idx].transaction_id}</td>
+        <td class="border border-gray-300 p-2 text-center">${
+          transactions[idx].transaction_id
+        }</td>
         <td class="border border-gray-300 p-2 text-center">${formatCurrency(
           item.cash
         )} СУМ</td>
@@ -269,17 +358,57 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  document.getElementById("spotSelect").addEventListener("change", (event) => {
-    const selectedSpot = event.target.value;
-    fetchTransaction(selectedSpot);
-    console.log("Selected spot:", selectedSpot);
+  // Dropdownni ochish/yopish
+  document.getElementById("spotButton").addEventListener("click", (e) => {
+    e.stopPropagation();
+    document.getElementById("spotDropdown").classList.toggle("hidden");
+  });
+
+  // Tashqariga bosilganda yopish
+  document.addEventListener("click", (ev) => {
+    const dd = document.getElementById("spotDropdown");
+    const btn = document.getElementById("spotButton");
+    if (!btn.contains(ev.target) && !dd.contains(ev.target)) {
+      dd.classList.add("hidden");
+    }
+  });
+
+  // Qidiruv
+  document.getElementById("spotSearch").addEventListener("input", (e) => {
+    renderSpotList(e.target.value);
+  });
+
+  // Select All
+  document.getElementById("spotSelectAll").addEventListener("change", (e) => {
+    if (e.target.checked) {
+      selectedSpots = spotsCache.map((s) => String(s.spot_id));
+    } else {
+      selectedSpots = [];
+    }
+    const q = document.getElementById("spotSearch").value || "";
+    renderSpotList(q);
+    updateSpotChips();
+  });
+
+  // Reset
+  document.getElementById("clearSpots").addEventListener("click", () => {
+    selectedSpots = [];
+    renderSpotList(document.getElementById("spotSearch").value || "");
+    updateSpotChips();
+    fetchTransaction(); // hammasi
+  });
+
+  // Qo‘llash
+  document.getElementById("applySpots").addEventListener("click", () => {
+    fetchTransaction(selectedSpots);
+    document.getElementById("spotDropdown").classList.add("hidden");
   });
 
   renderPredefinedRanges();
 
   // Apply date range
   document.getElementById("applyDateButton").addEventListener("click", () => {
-    fetchTransaction();
+    fetchTransaction(selectedSpots);
   });
 
   fetchTransaction();

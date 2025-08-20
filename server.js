@@ -64,7 +64,6 @@ app.get("/auth", async (req, res) => {
       code: req.query.code,
       account: req.query.account,
     };
-    console.log(req.query);
 
     const formData = new FormData();
     formData.append("application_id", auth.application_id);
@@ -128,7 +127,6 @@ app.get("/api/getTransaction", async (req, res) => {
     const filteredData = data.response.data.filter(
       (item) => item.extras && item.extras.combo_box
     );
-    // console.log(data.response.data)
 
     res.status(200).json({
       count: filteredData.length,
@@ -149,7 +147,6 @@ app.get("/getSpots", async (req, res) => {
       `https://joinposter.com/api/spots.getSpots?token=${token ? token : req.query.access_token}`
     );
     const data = await response.json();
-    console.log(data)
     res.status(200).json(data.response);
   } catch (error) {
     console.error("Error fetching spots:", error.message);

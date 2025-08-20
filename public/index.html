@@ -18,6 +18,20 @@
         height: 600px !important;
       }
 
+      .chip {
+        background: #e5e7eb;
+        border-radius: 9999px;
+        padding: 2px 8px;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .chip-remove {
+        font-weight: bold;
+        cursor: pointer;
+      }
+
       .button {
         margin-top: 10px;
         padding: 5px 10px;
@@ -46,9 +60,52 @@
             <span id="transaction-count" class="text-lg text-gray-600">0</span>
           </span>
           <div class="flex gap-3">
-            <select name="spot" id="spotSelect" class="bg-gray-200 rounded-md py-2 px-3">
-              <option value="">Выберите точку</option>
-            </select>
+            <!-- Spots dropdown + chips -->
+            <div class="flex items-center gap-3">
+              <div class="relative">
+                <button
+                  id="spotButton"
+                  class="bg-gray-200 rounded-md py-2 px-3 flex items-center gap-2"
+                >
+                  Точки: <span id="spotCount">Все</span>
+                </button>
+
+                <div
+                  id="spotDropdown"
+                  class="hidden absolute z-50 bg-white right-0 mt-3 w-80 p-3 shadow-md rounded-md border"
+                >
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" id="spotSelectAll" />
+                      <span>Выбрать все</span>
+                    </label>
+                    <button id="clearSpots" class="text-sm text-blue-600">
+                      Сбросить
+                    </button>
+                  </div>
+
+                  <input
+                    id="spotSearch"
+                    type="text"
+                    placeholder="Поиск точки..."
+                    class="w-full mb-2 px-2 py-1 border rounded-md"
+                  />
+
+                  <div
+                    id="spotList"
+                    class="max-h-60 overflow-y-auto space-y-1"
+                  ></div>
+
+                  <button id="applySpots" class="button w-full mt-3">
+                    Применить
+                  </button>
+                </div>
+              </div>
+
+              <!-- Tanlangan spotlar chiplari -->
+              <div id="spotChips" class="flex flex-wrap gap-2 max-w-xl"></div>
+            </div>
+
             <div class="relative">
               <button id="dateButton" class="bg-gray-200 rounded-md py-2 px-3">
                 Выберите дату
