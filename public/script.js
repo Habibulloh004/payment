@@ -48,7 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Dinamik sanalar oralig'ini hisoblashformatDate
   function getLastMonthRange() {
     const today = new Date();
-    console.log(today);
     const lastMonthDate = new Date(today);
     lastMonthDate.setMonth(today.getMonth() - 1);
 
@@ -106,7 +105,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function fetchTransaction(spotId = "") {
     const [startDate, endDate] = dateRange;
     const url = window.location.href;
-    console.log(dateRange);
 
     // Parse the URL
     const urlParams = new URLSearchParams(new URL(url).search);
@@ -132,7 +130,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (spotId != "") {
           res.data = res.data.filter((item) => item.spot_id == spotId);
         }
-        console.log(res);
         updateTable(res.data);
         document.getElementById(
           "transaction-count"
@@ -166,14 +163,13 @@ document.addEventListener("DOMContentLoaded", () => {
       };
     });
 
-    console.log(parsedData)
     const tbody = document.querySelector("#transactionTable tbody");
     tbody.innerHTML = "";
 
     parsedData.forEach((item, idx) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td class="border border-gray-300 p-2 text-center">${idx + 1}</td>
+        <td class="border border-gray-300 p-2 text-center">${transactions[idx].transaction_id}</td>
         <td class="border border-gray-300 p-2 text-center">${formatCurrency(
           item.cash
         )} СУМ</td>
